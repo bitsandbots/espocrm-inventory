@@ -1,0 +1,10 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "status"}, {"name": "dateOrdered"}],
+            [{"name": "customer"}, {"name": "payMethod"}],
+            [{"name": "notes", "fullWidth": true}]
+        ]
+    }
+]

@@ -1,0 +1,10 @@
+{
+    "fields": {
+        "name": "Adjustment",
+        "product": "Product",
+        "quantity": "Quantity (+/-)",
+        "comments": "Comments",
+        "dateAdjusted": "Date",
+        "ccInventoryId": "CC Inventory ID"
+    }
+}

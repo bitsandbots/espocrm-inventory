@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "purchaseOrder"}, false],
+            [{"name": "product"}, false],
+            [{"name": "qtyOrdered"}, {"name": "qtyReceived"}],
+            [{"name": "unitCost"}, false],
+            [{"name": "ccInventoryId"}, false]
+        ]
+    }
+]

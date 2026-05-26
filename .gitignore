@@ -1,0 +1,4 @@
+releases/
+.release-staging-*/
+/tmp/phpunit-inventory-output.log
+.phpunit.result.cache

@@ -1,0 +1,43 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "product": {
+            "type": "link",
+            "entity": "InventoryProduct",
+            "required": true
+        },
+        "quantity": {
+            "type": "int",
+            "required": true
+        },
+        "comments": {
+            "type": "text"
+        },
+        "dateAdjusted": {
+            "type": "datetime"
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "product": {
+            "type": "belongsTo",
+            "entity": "InventoryProduct",
+            "foreign": "stockAdjustments"
+        }
+    },
+    "collection": {
+        "sortBy": "dateAdjusted",
+        "asc": false
+    },
+    "indexes": {
+        "ccInventoryId": {
+            "columns": ["ccInventoryId"]
+        }
+    }
+}

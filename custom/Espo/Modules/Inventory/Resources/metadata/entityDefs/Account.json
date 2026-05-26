@@ -1,0 +1,24 @@
+{
+    "fields": {
+        "ccInventoryCustomerId": {
+            "type": "int",
+            "readOnly": true
+        },
+        "ccInventorySupplierId": {
+            "type": "int",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "inventoryOrders": {
+            "type": "hasMany",
+            "entity": "InventoryOrder",
+            "foreign": "customer"
+        },
+        "inventoryPurchaseOrders": {
+            "type": "hasMany",
+            "entity": "InventoryPurchaseOrder",
+            "foreign": "supplier"
+        }
+    }
+}

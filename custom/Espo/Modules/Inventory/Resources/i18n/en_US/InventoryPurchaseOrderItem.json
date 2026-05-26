@@ -1,0 +1,11 @@
+{
+    "fields": {
+        "name": "PO Item",
+        "purchaseOrder": "Purchase Order",
+        "product": "Product",
+        "qtyOrdered": "Qty Ordered",
+        "qtyReceived": "Qty Received",
+        "unitCost": "Unit Cost",
+        "ccInventoryId": "CC Inventory ID"
+    }
+}

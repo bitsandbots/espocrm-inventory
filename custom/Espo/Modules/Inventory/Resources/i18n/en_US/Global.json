@@ -1,0 +1,20 @@
+{
+    "scopeNames": {
+        "InventoryCategory": "Inventory Category",
+        "InventoryProduct": "Inventory Product",
+        "InventoryStockAdjustment": "Stock Adjustment",
+        "InventoryOrder": "Inventory Order",
+        "InventoryOrderItem": "Order Item",
+        "InventoryPurchaseOrder": "Purchase Order",
+        "InventoryPurchaseOrderItem": "PO Item"
+    },
+    "scopeNamesPlural": {
+        "InventoryCategory": "Inventory Categories",
+        "InventoryProduct": "Inventory Products",
+        "InventoryStockAdjustment": "Stock Adjustments",
+        "InventoryOrder": "Inventory Orders",
+        "InventoryOrderItem": "Order Items",
+        "InventoryPurchaseOrder": "Purchase Orders",
+        "InventoryPurchaseOrderItem": "PO Items"
+    }
+}

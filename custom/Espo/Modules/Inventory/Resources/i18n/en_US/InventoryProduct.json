@@ -1,0 +1,16 @@
+{
+    "fields": {
+        "name": "Product Name",
+        "description": "Description",
+        "sku": "SKU",
+        "location": "Location",
+        "quantity": "On Hand",
+        "lowStockThreshold": "Low Stock Threshold",
+        "buyPrice": "Buy Price",
+        "salePrice": "Sale Price",
+        "category": "Category",
+        "ccInventoryId": "CC Inventory ID",
+        "stockAdjustments": "Stock Adjustments",
+        "orderItems": "Order Items"
+    }
+}

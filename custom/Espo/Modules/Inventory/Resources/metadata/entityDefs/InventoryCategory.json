@@ -1,0 +1,18 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 60
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        }
+    },
+    "links": {},
+    "collection": {
+        "sortBy": "name",
+        "asc": true
+    }
+}

@@ -1,0 +1,68 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "supplier": {
+            "type": "link",
+            "entity": "Account"
+        },
+        "reference": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "status": {
+            "type": "enum",
+            "required": true,
+            "default": "draft",
+            "options": ["draft", "ordered", "partial", "received", "cancelled"],
+            "style": {
+                "draft":    "default",
+                "ordered":  "primary",
+                "partial":  "warning",
+                "received": "success",
+                "cancelled": "danger"
+            }
+        },
+        "notes": {
+            "type": "text"
+        },
+        "expectedAt": {
+            "type": "date"
+        },
+        "receivedAt": {
+            "type": "date",
+            "readOnly": true
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        },
+        "purchaseOrderItems": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true
+        }
+    },
+    "links": {
+        "supplier": {
+            "type": "belongsTo",
+            "entity": "Account",
+            "foreign": "inventoryPurchaseOrders"
+        },
+        "purchaseOrderItems": {
+            "type": "hasMany",
+            "entity": "InventoryPurchaseOrderItem",
+            "foreign": "purchaseOrder"
+        }
+    },
+    "collection": {
+        "sortBy": "createdAt",
+        "asc": false
+    },
+    "indexes": {
+        "ccInventoryId": {
+            "columns": ["ccInventoryId"]
+        }
+    }
+}

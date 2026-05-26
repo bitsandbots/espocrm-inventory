@@ -1,0 +1,10 @@
+[
+    {"name": "name", "link": true},
+    {"name": "sku", "width": 12},
+    {"name": "category", "width": 14},
+    {"name": "quantity", "width": 8, "align": "right"},
+    {"name": "lowStockThreshold", "width": 8, "align": "right"},
+    {"name": "salePrice", "width": 12, "align": "right"},
+    {"name": "location", "width": 16},
+    {"name": "ccInventoryId", "width": 8, "hidden": true}
+]

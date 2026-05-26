@@ -1,0 +1,17 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "name"}, {"name": "status"}],
+            [{"name": "supplier"}, {"name": "reference"}],
+            [{"name": "expectedAt"}, {"name": "receivedAt"}],
+            [{"name": "notes", "fullWidth": true}]
+        ]
+    },
+    {
+        "label": "Sync",
+        "rows": [
+            [{"name": "ccInventoryId"}, false]
+        ]
+    }
+]

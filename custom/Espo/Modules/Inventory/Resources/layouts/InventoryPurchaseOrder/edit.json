@@ -1,0 +1,10 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "supplier"}, {"name": "reference"}],
+            [{"name": "status"}, {"name": "expectedAt"}],
+            [{"name": "notes", "fullWidth": true}]
+        ]
+    }
+]

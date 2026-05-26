@@ -1,0 +1,6 @@
+{
+    "SyncFromCcInventory": {
+        "name": "Inventory: Sync from CC Inventory",
+        "jobClassName": "Espo\\Modules\\Inventory\\Jobs\\SyncFromCcInventory"
+    }
+}

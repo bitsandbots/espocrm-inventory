@@ -1,0 +1,44 @@
+{
+    "fields": {
+        "dbHost": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 255,
+            "default": "localhost"
+        },
+        "dbPort": {
+            "type": "varchar",
+            "maxLength": 10,
+            "default": "3306"
+        },
+        "dbName": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 255
+        },
+        "dbUser": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 255
+        },
+        "dbPassword": {
+            "type": "password",
+            "required": true,
+            "maxLength": 255
+        },
+        "lastSyncAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "lastSyncCount": {
+            "type": "int",
+            "readOnly": true
+        },
+        "lastSyncError": {
+            "type": "text",
+            "readOnly": true
+        }
+    },
+    "allowUserAccounts": false,
+    "view": "inventory:views/admin/integrations/inventory"
+}

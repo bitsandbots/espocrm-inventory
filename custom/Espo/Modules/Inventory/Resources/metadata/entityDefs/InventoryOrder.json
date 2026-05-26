@@ -1,0 +1,64 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "status": {
+            "type": "enum",
+            "required": true,
+            "default": "pending",
+            "options": ["pending", "processing", "shipped", "fulfilled", "cancelled"],
+            "style": {
+                "pending":    "warning",
+                "processing": "primary",
+                "shipped":    "info",
+                "fulfilled":  "success",
+                "cancelled":  "danger"
+            }
+        },
+        "notes": {
+            "type": "text"
+        },
+        "payMethod": {
+            "type": "varchar",
+            "maxLength": 10
+        },
+        "dateOrdered": {
+            "type": "date"
+        },
+        "customer": {
+            "type": "link",
+            "entity": "Account"
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        },
+        "orderItems": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true
+        }
+    },
+    "links": {
+        "customer": {
+            "type": "belongsTo",
+            "entity": "Account",
+            "foreign": "inventoryOrders"
+        },
+        "orderItems": {
+            "type": "hasMany",
+            "entity": "InventoryOrderItem",
+            "foreign": "order"
+        }
+    },
+    "collection": {
+        "sortBy": "dateOrdered",
+        "asc": false
+    },
+    "indexes": {
+        "ccInventoryId": {
+            "columns": ["ccInventoryId"]
+        }
+    }
+}

@@ -1,0 +1,10 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "order"}, {"name": "dateItem"}],
+            [{"name": "product"}, false],
+            [{"name": "qty"}, {"name": "price"}]
+        ]
+    }
+]

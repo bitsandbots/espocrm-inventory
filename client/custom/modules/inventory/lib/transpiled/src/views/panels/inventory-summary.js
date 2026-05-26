@@ -1,0 +1,55 @@
+define("modules/inventory/views/panels/inventory-summary", ["exports"], function (_exports) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", { value: true });
+  _exports.default = void 0;
+
+  class InventorySummaryPanel extends Espo.View {
+    get template() { return 'inventory:panels/inventory-summary'; }
+
+    data() {
+      return {
+        orders:         this.orders,
+        purchaseOrders: this.purchaseOrders,
+        hasOrders:         (this.orders || []).length > 0,
+        hasPurchaseOrders: (this.purchaseOrders || []).length > 0,
+      };
+    }
+
+    setup() {
+      this.orders         = [];
+      this.purchaseOrders = [];
+      this.fetchData();
+    }
+
+    fetchData() {
+      const accountId = this.model.id;
+      Promise.all([
+        Espo.Ajax.getRequest('InventoryOrder', {
+          where: [
+            {type: 'equals', attribute: 'customerId', value: accountId},
+            {type: 'in', attribute: 'status', value: ['pending', 'processing', 'shipped']},
+          ],
+          maxSize: 10,
+          orderBy: 'dateOrdered',
+          order: 'desc',
+        }),
+        Espo.Ajax.getRequest('InventoryPurchaseOrder', {
+          where: [
+            {type: 'equals', attribute: 'supplierId', value: accountId},
+            {type: 'in', attribute: 'status', value: ['draft', 'ordered', 'partial']},
+          ],
+          maxSize: 10,
+          orderBy: 'createdAt',
+          order: 'desc',
+        }),
+      ]).then(([ordersResp, posResp]) => {
+        this.orders         = ordersResp.list ?? [];
+        this.purchaseOrders = posResp.list ?? [];
+        this.reRender();
+      }).catch(() => {});
+    }
+  }
+
+  _exports.default = InventorySummaryPanel;
+});

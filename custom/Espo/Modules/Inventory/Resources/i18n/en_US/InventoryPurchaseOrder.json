@@ -1,0 +1,22 @@
+{
+    "fields": {
+        "name": "Purchase Order",
+        "supplier": "Supplier",
+        "reference": "Supplier Reference",
+        "status": "Status",
+        "notes": "Notes",
+        "expectedAt": "Expected",
+        "receivedAt": "Received",
+        "ccInventoryId": "CC Inventory ID",
+        "purchaseOrderItems": "Line Items"
+    },
+    "options": {
+        "status": {
+            "draft":     "Draft",
+            "ordered":   "Ordered",
+            "partial":   "Partially Received",
+            "received":  "Received",
+            "cancelled": "Cancelled"
+        }
+    }
+}

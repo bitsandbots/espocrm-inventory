@@ -1,0 +1,17 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "name"}, {"name": "status"}],
+            [{"name": "customer"}, {"name": "dateOrdered"}],
+            [{"name": "payMethod"}, false],
+            [{"name": "notes", "fullWidth": true}]
+        ]
+    },
+    {
+        "label": "Sync",
+        "rows": [
+            [{"name": "ccInventoryId"}, false]
+        ]
+    }
+]

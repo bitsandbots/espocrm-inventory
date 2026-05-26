@@ -1,0 +1,23 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [{"name": "name"}, {"name": "sku"}],
+            [{"name": "category"}, {"name": "location"}],
+            [{"name": "quantity"}, {"name": "lowStockThreshold"}],
+            [{"name": "buyPrice"}, {"name": "salePrice"}]
+        ]
+    },
+    {
+        "label": "Details",
+        "rows": [
+            [{"name": "description", "fullWidth": true}]
+        ]
+    },
+    {
+        "label": "Sync",
+        "rows": [
+            [{"name": "ccInventoryId"}, false]
+        ]
+    }
+]

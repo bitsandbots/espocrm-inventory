@@ -1,0 +1,11 @@
+{
+    "fields": {
+        "name": "Item",
+        "order": "Order",
+        "product": "Product",
+        "qty": "Qty",
+        "price": "Line Total",
+        "dateItem": "Date",
+        "ccInventoryId": "CC Inventory ID"
+    }
+}

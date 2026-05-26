@@ -1,0 +1,81 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 255
+        },
+        "description": {
+            "type": "text"
+        },
+        "sku": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "location": {
+            "type": "varchar",
+            "maxLength": 255
+        },
+        "quantity": {
+            "type": "int",
+            "default": 0,
+            "readOnly": true
+        },
+        "lowStockThreshold": {
+            "type": "int",
+            "default": 10
+        },
+        "buyPrice": {
+            "type": "currency"
+        },
+        "salePrice": {
+            "type": "currency",
+            "required": true
+        },
+        "category": {
+            "type": "link",
+            "entity": "InventoryCategory"
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        },
+        "stockAdjustments": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true
+        },
+        "orderItems": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true
+        }
+    },
+    "links": {
+        "category": {
+            "type": "belongsTo",
+            "entity": "InventoryCategory",
+            "foreign": "products"
+        },
+        "stockAdjustments": {
+            "type": "hasMany",
+            "entity": "InventoryStockAdjustment",
+            "foreign": "product"
+        },
+        "orderItems": {
+            "type": "hasMany",
+            "entity": "InventoryOrderItem",
+            "foreign": "product"
+        }
+    },
+    "collection": {
+        "sortBy": "name",
+        "asc": true
+    },
+    "indexes": {
+        "sku": {
+            "columns": ["sku"]
+        },
+        "ccInventoryId": {
+            "columns": ["ccInventoryId"]
+        }
+    }
+}

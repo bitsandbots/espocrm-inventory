@@ -1,0 +1,20 @@
+{
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "inventoryOrders",
+                "label": "Inventory Orders",
+                "view": "inventory:views/panels/inventory-summary",
+                "order": 20
+            }
+        ],
+        "detailSmall": [
+            {
+                "name": "inventoryOrders",
+                "label": "Inventory Orders",
+                "view": "inventory:views/panels/inventory-summary",
+                "order": 20
+            }
+        ]
+    }
+}

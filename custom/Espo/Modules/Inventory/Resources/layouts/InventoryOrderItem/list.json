@@ -1,0 +1,8 @@
+[
+    {"name": "name", "link": true},
+    {"name": "order", "width": 16},
+    {"name": "product", "width": 24},
+    {"name": "qty", "width": 8, "align": "right"},
+    {"name": "price", "width": 12, "align": "right"},
+    {"name": "dateItem", "width": 12}
+]

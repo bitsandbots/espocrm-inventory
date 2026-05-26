@@ -1,0 +1,21 @@
+{
+    "fields": {
+        "name": "Order",
+        "status": "Status",
+        "notes": "Notes",
+        "payMethod": "Payment Method",
+        "dateOrdered": "Date",
+        "customer": "Customer",
+        "ccInventoryId": "CC Inventory ID",
+        "orderItems": "Line Items"
+    },
+    "options": {
+        "status": {
+            "pending":    "Pending",
+            "processing": "Processing",
+            "shipped":    "Shipped",
+            "fulfilled":  "Fulfilled",
+            "cancelled":  "Cancelled"
+        }
+    }
+}

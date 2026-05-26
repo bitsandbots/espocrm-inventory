@@ -1,0 +1,18 @@
+[
+    {
+        "route": "/Inventory/testConnection",
+        "method": "post",
+        "params": {
+            "controller": "InventorySync",
+            "action": "testConnection"
+        }
+    },
+    {
+        "route": "/Inventory/runSync",
+        "method": "post",
+        "params": {
+            "controller": "InventorySync",
+            "action": "runSync"
+        }
+    }
+]

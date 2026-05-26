@@ -1,0 +1,9 @@
+[
+    {"name": "name", "link": true},
+    {"name": "status", "width": 12},
+    {"name": "supplier", "width": 20},
+    {"name": "reference", "width": 14},
+    {"name": "expectedAt", "width": 12},
+    {"name": "receivedAt", "width": 12},
+    {"name": "ccInventoryId", "width": 8, "hidden": true}
+]

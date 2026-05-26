@@ -1,0 +1,55 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "maxLength": 100
+        },
+        "purchaseOrder": {
+            "type": "link",
+            "entity": "InventoryPurchaseOrder",
+            "required": true
+        },
+        "product": {
+            "type": "link",
+            "entity": "InventoryProduct",
+            "required": true
+        },
+        "qtyOrdered": {
+            "type": "int",
+            "required": true,
+            "default": 0
+        },
+        "qtyReceived": {
+            "type": "int",
+            "default": 0
+        },
+        "unitCost": {
+            "type": "currency"
+        },
+        "ccInventoryId": {
+            "type": "int",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "purchaseOrder": {
+            "type": "belongsTo",
+            "entity": "InventoryPurchaseOrder",
+            "foreign": "purchaseOrderItems"
+        },
+        "product": {
+            "type": "belongsTo",
+            "entity": "InventoryProduct",
+            "foreign": "purchaseOrderItems"
+        }
+    },
+    "collection": {
+        "sortBy": "createdAt",
+        "asc": false
+    },
+    "indexes": {
+        "ccInventoryId": {
+            "columns": ["ccInventoryId"]
+        }
+    }
+}

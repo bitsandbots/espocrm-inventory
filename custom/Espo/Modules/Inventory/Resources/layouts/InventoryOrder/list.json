@@ -1,0 +1,8 @@
+[
+    {"name": "name", "link": true},
+    {"name": "status", "width": 12},
+    {"name": "customer", "width": 20},
+    {"name": "payMethod", "width": 10},
+    {"name": "dateOrdered", "width": 12},
+    {"name": "ccInventoryId", "width": 8, "hidden": true}
+]

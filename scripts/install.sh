@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Install the EspoCRM CC Inventory module onto an existing EspoCRM instance.
-# Usage: ./scripts/install.sh --espo-path PATH
+# Usage: ./scripts/install.sh --espo-path PATH [--skip-rebuild]
 
 ##############################################################################
 # COLOR & OUTPUT UTILITIES
@@ -14,11 +14,24 @@ _yellow() { echo -e "\033[33m$*\033[0m"; }
 _red()    { echo -e "\033[31m$*\033[0m"; }
 _blue()   { echo -e "\033[34m$*\033[0m"; }
 
+usage() {
+  echo "Usage: $0 --espo-path PATH [--skip-rebuild]"
+  echo ""
+  echo "Options:"
+  echo "  --espo-path PATH   Path to the EspoCRM installation root (required)"
+  echo "  --skip-rebuild     Skip the rebuild and cache-clear step"
+  echo ""
+  echo "Example:"
+  echo "  $0 --espo-path /var/www/espocrm"
+  exit 0
+}
+
 ##############################################################################
 # ARGUMENT PARSING
 ##############################################################################
 
 ESPO_PATH=""
+SKIP_REBUILD=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,9 +39,16 @@ while [[ $# -gt 0 ]]; do
       ESPO_PATH="$2"
       shift 2
       ;;
+    --skip-rebuild)
+      SKIP_REBUILD=true
+      shift
+      ;;
+    --help|-h)
+      usage
+      ;;
     *)
       _red "ERROR: Unknown option: $1"
-      echo "Usage: $0 --espo-path /path/to/espocrm"
+      echo "Usage: $0 --espo-path /path/to/espocrm [--skip-rebuild]"
       exit 1
       ;;
   esac
@@ -36,7 +56,7 @@ done
 
 if [[ -z "$ESPO_PATH" ]]; then
   _red "ERROR: --espo-path is required"
-  echo "Usage: $0 --espo-path /path/to/espocrm"
+  echo "Usage: $0 --espo-path /path/to/espocrm [--skip-rebuild]"
   exit 1
 fi
 
@@ -51,6 +71,7 @@ ESPO_PATH="$(cd "$ESPO_PATH" 2>/dev/null && pwd)" || {
 
 if [[ ! -f "$ESPO_PATH/data/config.php" ]]; then
   _red "ERROR: EspoCRM config not found at $ESPO_PATH/data/config.php"
+  _red "       Is this a valid EspoCRM installation?"
   exit 1
 fi
 
@@ -61,7 +82,8 @@ CURRENT_USER=$(whoami)
 
 if [[ "$CURRENT_USER" != "$CONFIG_OWNER" ]]; then
   _yellow "WARNING: Running as '$CURRENT_USER' but config.php is owned by '$CONFIG_OWNER'"
-  _yellow "This may cause permission issues during module installation."
+  _yellow "         This may cause permission issues during installation."
+  _yellow "         Consider running as: sudo -u $CONFIG_OWNER $0 --espo-path $ESPO_PATH"
 fi
 
 ##############################################################################
@@ -91,7 +113,7 @@ copy_module() {
   src_resolved="$(cd "$src" && pwd)"
 
   if [[ "$src_resolved" == "$dst_resolved" ]]; then
-    _green "  $name already in place"
+    _green "  $name already in place (source = destination, skipping)"
     return 0
   fi
 
@@ -115,24 +137,29 @@ copy_module \
 # REBUILD & CACHE CLEAR
 ##############################################################################
 
-_blue "Running system rebuild..."
-
-cd "$ESPO_PATH"
-
-if php command.php rebuild 2>&1 | grep -q "Rebuild succeeded"; then
-  _green "  Rebuild succeeded"
+if [[ "$SKIP_REBUILD" == true ]]; then
+  _yellow "Skipping rebuild (--skip-rebuild)"
 else
-  _red "ERROR: Rebuild failed — check EspoCRM logs for details"
-  exit 1
-fi
+  _blue "Running system rebuild..."
 
-php command.php clear-cache
-_green "  Cache cleared"
+  cd "$ESPO_PATH"
+
+  if php command.php rebuild; then
+    _green "  Rebuild succeeded"
+  else
+    _red "ERROR: Rebuild failed — check EspoCRM logs at data/logs/espo.log"
+    exit 1
+  fi
+
+  php command.php clear-cache
+  _green "  Cache cleared"
+fi
 
 ##############################################################################
 # POST-INSTALL INSTRUCTIONS
 ##############################################################################
 
+_green ""
 _green "CC Inventory module installed successfully!"
 echo ""
 _blue "Post-installation steps:"

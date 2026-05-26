@@ -5,6 +5,7 @@ set -euo pipefail
 # Package the EspoCRM CC Inventory module into a versioned ZIP archive.
 # Usage: ./scripts/release.sh [--version X.Y.Z] [--espo-path PATH] [--skip-tests] [--skip-transpile]
 #
+# --version        Release version (X.Y.Z). Defaults to latest git tag, or 0.0.0-dev.
 # --espo-path      Path to an EspoCRM installation (needed for tests and transpilation).
 #                  Defaults to $HOME/espocrm if present.
 # --skip-tests     Skip PHPUnit test run.
@@ -21,6 +22,21 @@ _yellow() { echo -e "\033[33m$*\033[0m"; }
 _red()    { echo -e "\033[31m$*\033[0m"; }
 _blue()   { echo -e "\033[34m$*\033[0m"; }
 
+usage() {
+  echo "Usage: $0 [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  --version X.Y.Z      Release version (default: latest git tag or 0.0.0-dev)"
+  echo "  --espo-path PATH     EspoCRM root for transpilation + tests (default: \$HOME/espocrm)"
+  echo "  --skip-tests         Skip PHPUnit test run"
+  echo "  --skip-transpile     Skip JS transpilation step"
+  echo "  --help, -h           Show this help"
+  echo ""
+  echo "Example:"
+  echo "  $0 --version 1.1.0 --espo-path /var/www/espocrm"
+  exit 0
+}
+
 ##############################################################################
 # DEPENDENCY CHECKS
 ##############################################################################
@@ -35,6 +51,7 @@ check_command() {
 _blue "Checking dependencies..."
 check_command "zip"
 check_command "php"
+check_command "sha256sum"
 _green "Core dependencies available"
 
 ##############################################################################
@@ -64,15 +81,19 @@ while [[ $# -gt 0 ]]; do
       SKIP_TRANSPILE=true
       shift
       ;;
+    --help|-h)
+      usage
+      ;;
     *)
       _red "ERROR: Unknown option: $1"
+      echo "Run '$0 --help' for usage."
       exit 1
       ;;
   esac
 done
 
 ##############################################################################
-# VERSION RESOLUTION
+# VERSION RESOLUTION & VALIDATION
 ##############################################################################
 
 if [[ -z "$VERSION" ]]; then
@@ -83,6 +104,12 @@ if [[ -z "$VERSION" ]]; then
   fi
 fi
 
+# Validate X.Y.Z format (allows pre-release suffixes like 1.0.0-beta.1)
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9._-]+)?$ ]]; then
+  _red "ERROR: Version '$VERSION' is not valid semver (expected X.Y.Z or X.Y.Z-suffix)"
+  exit 1
+fi
+
 _green "Release version: $VERSION"
 
 ##############################################################################
@@ -91,7 +118,7 @@ _green "Release version: $VERSION"
 
 if [[ ! -d "$ESPO_PATH" ]]; then
   _red "ERROR: EspoCRM path does not exist: $ESPO_PATH"
-  _yellow "Pass --espo-path /path/to/espocrm or set ESPO_PATH environment variable."
+  _yellow "Pass --espo-path /path/to/espocrm or ensure \$HOME/espocrm exists."
   exit 1
 fi
 
@@ -149,7 +176,7 @@ if [[ "$SKIP_TESTS" == false ]]; then
   TEST_DIR="${PROJECT_ROOT}/tests/unit/Espo/Modules/Inventory"
 
   if [[ ! -d "$TEST_DIR" ]] || [[ -z "$(ls -A "$TEST_DIR" 2>/dev/null)" ]]; then
-    _yellow "No tests found — skipping test run"
+    _yellow "No tests found in $TEST_DIR — skipping test run"
   else
     if ESPO_PATH="$ESPO_PATH" php "$PHPUNIT" \
         --configuration "${PROJECT_ROOT}/phpunit.xml" \
@@ -215,7 +242,9 @@ _green "Files staged"
 _blue "Creating release archive..."
 
 ZIP_FILE="${RELEASES_DIR}/espocrm-inventory-v${VERSION}.zip"
-rm -f "$ZIP_FILE"
+CHECKSUM_FILE="${ZIP_FILE}.sha256"
+
+rm -f "$ZIP_FILE" "$CHECKSUM_FILE"
 
 cd "$STAGING_DIR"
 zip -r "$ZIP_FILE" . > /dev/null 2>&1
@@ -229,20 +258,32 @@ fi
 _green "Archive created: $ZIP_FILE"
 
 ##############################################################################
-# CHECKSUM & FINAL OUTPUT
+# CHECKSUM FILE
 ##############################################################################
 
-CHECKSUM=$(sha256sum "$ZIP_FILE" | awk '{print $1}')
+sha256sum "$ZIP_FILE" | awk '{print $1}' > "$CHECKSUM_FILE"
+CHECKSUM=$(cat "$CHECKSUM_FILE")
+_green "SHA-256 checksum written: $CHECKSUM_FILE"
 
+##############################################################################
+# FINAL OUTPUT
+##############################################################################
+
+_green ""
 _green "Release package ready!"
 echo ""
 _blue "Package details:"
 echo "  File:      $ZIP_FILE"
+echo "  Checksum:  $CHECKSUM_FILE"
 echo "  Version:   $VERSION"
-echo "  Checksum:  $CHECKSUM"
+echo "  SHA-256:   $CHECKSUM"
 echo ""
-_blue "Deployment:"
-_yellow "scp $ZIP_FILE user@server:/tmp/"
-_yellow "cd /path/to/espocrm && unzip -o /tmp/$(basename "$ZIP_FILE")"
-_yellow "./scripts/install.sh --espo-path /path/to/espocrm"
+_blue "Tag this release (optional):"
+_yellow "  git tag -a v${VERSION} -m 'Release v${VERSION}'"
+_yellow "  git push origin v${VERSION}"
+echo ""
+_blue "Deploy:"
+_yellow "  scp $ZIP_FILE user@server:/tmp/"
+_yellow "  cd /path/to/espocrm && unzip -o /tmp/$(basename "$ZIP_FILE")"
+_yellow "  ./scripts/install.sh --espo-path /path/to/espocrm"
 echo ""

@@ -8,8 +8,10 @@ export default class InventorySummaryPanel extends Espo.View {
 
     data() {
         return {
-            orders:         this.orders,
-            purchaseOrders: this.purchaseOrders,
+            orders:           this.orders,
+            purchaseOrders:   this.purchaseOrders,
+            hasOrders:        (this.orders || []).length > 0,
+            hasPurchaseOrders: (this.purchaseOrders || []).length > 0,
         };
     }
 

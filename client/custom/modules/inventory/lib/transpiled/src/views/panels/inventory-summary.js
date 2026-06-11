@@ -6,7 +6,7 @@ define("modules/inventory/views/panels/inventory-summary", ["exports", "view"], 
   _view = _view && _view.__esModule ? _view : { default: _view };
 
   class InventorySummaryPanel extends _view.default {
-    get template() { return 'inventory:panels/inventory-summary'; }
+    template = 'inventory:panels/inventory-summary';
 
     data() {
       return {

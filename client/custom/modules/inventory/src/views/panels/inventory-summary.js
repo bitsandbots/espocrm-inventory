@@ -1,8 +1,10 @@
+import View from 'view';
+
 /**
  * Inventory summary side panel shown on Account detail view.
  * Displays open orders and open purchase orders linked to the account.
  */
-export default class InventorySummaryPanel extends Espo.View {
+export default class InventorySummaryPanel extends View {
 
     template = 'inventory:panels/inventory-summary'
 
@@ -25,7 +27,7 @@ export default class InventorySummaryPanel extends Espo.View {
         const accountId = this.model.id;
 
         Promise.all([
-            Espo.Ajax.getRequest('InventoryOrder', {
+            this.ajaxGetRequest('InventoryOrder', {
                 where: [
                     {type: 'equals', attribute: 'customerId', value: accountId},
                     {type: 'in', attribute: 'status', value: ['pending', 'processing', 'shipped']},
@@ -34,7 +36,7 @@ export default class InventorySummaryPanel extends Espo.View {
                 orderBy: 'dateOrdered',
                 order: 'desc',
             }),
-            Espo.Ajax.getRequest('InventoryPurchaseOrder', {
+            this.ajaxGetRequest('InventoryPurchaseOrder', {
                 where: [
                     {type: 'equals', attribute: 'supplierId', value: accountId},
                     {type: 'in', attribute: 'status', value: ['draft', 'ordered', 'partial']},

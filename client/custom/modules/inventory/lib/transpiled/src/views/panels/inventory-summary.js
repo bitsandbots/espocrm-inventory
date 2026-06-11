@@ -1,10 +1,11 @@
-define("modules/inventory/views/panels/inventory-summary", ["exports"], function (_exports) {
+define("modules/inventory/views/panels/inventory-summary", ["exports", "view"], function (_exports, _view) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", { value: true });
   _exports.default = void 0;
+  _view = _view && _view.__esModule ? _view : { default: _view };
 
-  class InventorySummaryPanel extends Espo.View {
+  class InventorySummaryPanel extends _view.default {
     get template() { return 'inventory:panels/inventory-summary'; }
 
     data() {
@@ -25,7 +26,7 @@ define("modules/inventory/views/panels/inventory-summary", ["exports"], function
     fetchData() {
       const accountId = this.model.id;
       Promise.all([
-        Espo.Ajax.getRequest('InventoryOrder', {
+        this.ajaxGetRequest('InventoryOrder', {
           where: [
             {type: 'equals', attribute: 'customerId', value: accountId},
             {type: 'in', attribute: 'status', value: ['pending', 'processing', 'shipped']},
@@ -34,7 +35,7 @@ define("modules/inventory/views/panels/inventory-summary", ["exports"], function
           orderBy: 'dateOrdered',
           order: 'desc',
         }),
-        Espo.Ajax.getRequest('InventoryPurchaseOrder', {
+        this.ajaxGetRequest('InventoryPurchaseOrder', {
           where: [
             {type: 'equals', attribute: 'supplierId', value: accountId},
             {type: 'in', attribute: 'status', value: ['draft', 'ordered', 'partial']},

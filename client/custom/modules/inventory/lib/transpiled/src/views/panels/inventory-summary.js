@@ -26,7 +26,7 @@ define("modules/inventory/views/panels/inventory-summary", ["exports", "view"], 
     fetchData() {
       const accountId = this.model.id;
       Promise.all([
-        this.ajaxGetRequest('InventoryOrder', {
+        Espo.Ajax.getRequest('InventoryOrder', {
           where: [
             {type: 'equals', attribute: 'customerId', value: accountId},
             {type: 'in', attribute: 'status', value: ['pending', 'processing', 'shipped']},
@@ -35,7 +35,7 @@ define("modules/inventory/views/panels/inventory-summary", ["exports", "view"], 
           orderBy: 'dateOrdered',
           order: 'desc',
         }),
-        this.ajaxGetRequest('InventoryPurchaseOrder', {
+        Espo.Ajax.getRequest('InventoryPurchaseOrder', {
           where: [
             {type: 'equals', attribute: 'supplierId', value: accountId},
             {type: 'in', attribute: 'status', value: ['draft', 'ordered', 'partial']},

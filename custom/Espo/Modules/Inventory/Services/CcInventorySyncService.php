@@ -193,24 +193,18 @@ class CcInventorySyncService
              FROM sales ORDER BY id"
         );
 
+        if (!$rows) {
+            return;
+        }
+
+        $orderMap   = $this->buildCcIdMap('InventoryOrder',   array_unique(array_column($rows, 'order_id')));
+        $productMap = $this->buildCcIdMap('InventoryProduct', array_unique(array_column($rows, 'product_id')));
+
         foreach ($rows as $row) {
-            $orderId   = null;
-            $productId = null;
-
-            $order = $this->findByCcId('InventoryOrder', (int) $row['order_id']);
-            if ($order) {
-                $orderId = $order->getId();
-            }
-
-            $product = $this->findByCcId('InventoryProduct', (int) $row['product_id']);
-            if ($product) {
-                $productId = $product->getId();
-            }
-
             $this->upsert('InventoryOrderItem', (int) $row['id'], [
                 'name'          => 'Item #' . $row['id'],
-                'orderId'       => $orderId,
-                'productId'     => $productId,
+                'orderId'       => $orderMap[(int) $row['order_id']] ?? null,
+                'productId'     => $productMap[(int) $row['product_id']] ?? null,
                 'qty'           => (int) $row['qty'],
                 'price'         => (float) $row['price'],
                 'dateItem'      => $row['date'],
@@ -262,28 +256,22 @@ class CcInventorySyncService
              FROM purchase_order_items ORDER BY id"
         );
 
+        if (!$rows) {
+            return;
+        }
+
+        $poMap      = $this->buildCcIdMap('InventoryPurchaseOrder', array_unique(array_column($rows, 'po_id')));
+        $productMap = $this->buildCcIdMap('InventoryProduct',       array_unique(array_column($rows, 'product_id')));
+
         foreach ($rows as $row) {
-            $poId      = null;
-            $productId = null;
-
-            $po = $this->findByCcId('InventoryPurchaseOrder', (int) $row['po_id']);
-            if ($po) {
-                $poId = $po->getId();
-            }
-
-            $product = $this->findByCcId('InventoryProduct', (int) $row['product_id']);
-            if ($product) {
-                $productId = $product->getId();
-            }
-
             $this->upsert('InventoryPurchaseOrderItem', (int) $row['id'], [
-                'name'          => 'PO Item #' . $row['id'],
-                'purchaseOrderId' => $poId,
-                'productId'     => $productId,
-                'qtyOrdered'    => (int) $row['qty_ordered'],
-                'qtyReceived'   => (int) $row['qty_received'],
-                'unitCost'      => (float) $row['unit_cost'],
-                'ccInventoryId' => (int) $row['id'],
+                'name'            => 'PO Item #' . $row['id'],
+                'purchaseOrderId' => $poMap[(int) $row['po_id']] ?? null,
+                'productId'       => $productMap[(int) $row['product_id']] ?? null,
+                'qtyOrdered'      => (int) $row['qty_ordered'],
+                'qtyReceived'     => (int) $row['qty_received'],
+                'unitCost'        => (float) $row['unit_cost'],
+                'ccInventoryId'   => (int) $row['id'],
             ]);
         }
     }
@@ -299,12 +287,14 @@ class CcInventorySyncService
              FROM stock ORDER BY id"
         );
 
+        if (!$rows) {
+            return;
+        }
+
+        $productMap = $this->buildCcIdMap('InventoryProduct', array_unique(array_column($rows, 'product_id')));
+
         foreach ($rows as $row) {
-            $productId = null;
-            $product   = $this->findByCcId('InventoryProduct', (int) $row['product_id']);
-            if ($product) {
-                $productId = $product->getId();
-            }
+            $productId = $productMap[(int) $row['product_id']] ?? null;
 
             $this->upsert('InventoryStockAdjustment', (int) $row['id'], [
                 'name'          => 'Adjustment #' . $row['id'],
@@ -343,6 +333,39 @@ class CcInventorySyncService
             ->getRepository($entityType)
             ->where('ccInventoryId', $ccId)
             ->findOne();
+    }
+
+    /**
+     * Batch-load ccInventoryId → espo id for an entity type.
+     * Reduces N per-row SELECTs to a single IN query.
+     *
+     * @param  int[]  $ccIds
+     * @return array<int, string>  [ccInventoryId => espoId]
+     */
+    private function buildCcIdMap(string $entityType, array $ccIds): array
+    {
+        $ccIds = array_values(array_filter(array_map('intval', $ccIds)));
+
+        if (!$ccIds) {
+            return [];
+        }
+
+        $collection = $this->entityManager
+            ->getRepository($entityType)
+            ->select(['id', 'ccInventoryId'])
+            ->where('ccInventoryId', $ccIds)
+            ->find();
+
+        $map = [];
+
+        foreach ($collection as $entity) {
+            $ccId = (int) $entity->get('ccInventoryId');
+            if ($ccId) {
+                $map[$ccId] = $entity->getId();
+            }
+        }
+
+        return $map;
     }
 
     private function upsertAccountFromCcInventory(

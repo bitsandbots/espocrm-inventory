@@ -22,7 +22,7 @@
         },
         "payMethod": {
             "type": "varchar",
-            "maxLength": 10
+            "maxLength": 50
         },
         "dateOrdered": {
             "type": "date"

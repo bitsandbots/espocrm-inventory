@@ -41,6 +41,14 @@ class CcInventoryDbService
             throw new Error("CC Inventory integration is missing required database credentials.");
         }
 
+        // Reject values that could inject DSN parameters
+        if (!preg_match('/^[a-zA-Z0-9._\-]+$/', $host)) {
+            throw new Error("CC Inventory: invalid dbHost value.");
+        }
+        if (!ctype_digit((string) $port) || (int) $port < 1 || (int) $port > 65535) {
+            throw new Error("CC Inventory: invalid dbPort value.");
+        }
+
         $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
 
         try {

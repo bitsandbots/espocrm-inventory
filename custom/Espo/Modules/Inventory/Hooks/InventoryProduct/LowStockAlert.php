@@ -55,6 +55,7 @@ class LowStockAlert implements AfterSave
             ->getRepository('User')
             ->where('isAdmin', true)
             ->where('isActive', true)
+            ->limit(50)
             ->find();
 
         $message = sprintf(

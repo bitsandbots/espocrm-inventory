@@ -7,7 +7,9 @@ use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Log;
 use Espo\Modules\Inventory\Services\CcInventoryDbService;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -19,6 +21,7 @@ class OrderItemWriteThrough implements AfterSave
 
     public function __construct(
         private InjectableFactory $injectableFactory,
+        private EntityManager $entityManager,
         private Log $log
     ) {}
 
@@ -32,13 +35,19 @@ class OrderItemWriteThrough implements AfterSave
             return;
         }
 
+        $qty   = (int) ($entity->get('qty') ?? 1);
+        $price = (float) ($entity->get('price') ?? 0.0);
+        $date  = $entity->get('dateItem') ?? date('Y-m-d');
+
+        if ($qty <= 0) {
+            $this->log->warning("Inventory: OrderItemWriteThrough — invalid qty {$qty} for '{$entity->getId()}'; skipping.");
+            return;
+        }
+
         $db = $this->injectableFactory->create(CcInventoryDbService::class);
 
         $ccOrderId   = null;
         $ccProductId = null;
-        $qty         = (int) ($entity->get('qty') ?? 1);
-        $price       = (float) ($entity->get('price') ?? 0.0);
-        $date        = $entity->get('dateItem') ?? date('Y-m-d');
 
         try {
             $orderLink = $entity->get('order');
@@ -58,15 +67,16 @@ class OrderItemWriteThrough implements AfterSave
 
             $db->beginTransaction();
 
-            $db->execute(
-                "INSERT INTO sales (order_id, product_id, qty, price, date) VALUES (?, ?, ?, ?, ?)",
-                [$ccOrderId, $ccProductId, $qty, $price, $date]
-            );
+            $saleId = $this->insertSale($db, $ccOrderId, $ccProductId, $qty, $price, $date);
 
-            $db->execute(
+            $affected = $db->execute(
                 "UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?",
                 [$qty, $ccProductId, $qty]
             );
+
+            if ($affected === 0) {
+                throw new RuntimeException("Insufficient stock for product #{$ccProductId} (requested {$qty} units).");
+            }
 
             $db->execute(
                 "INSERT INTO stock (product_id, quantity, comments, date) VALUES (?, ?, ?, NOW())",
@@ -80,9 +90,28 @@ class OrderItemWriteThrough implements AfterSave
             );
 
             $db->commit();
+
+            // Persist cc-inventory sale ID back to EspoCRM (after commit so ID is stable)
+            $entity->set('ccInventoryId', $saleId);
+            $this->entityManager->saveEntity($entity, ['skipInventorySync' => true, 'silent' => true]);
         } catch (Throwable $e) {
             $db->rollBack();
             $this->log->warning("Inventory: OrderItemWriteThrough failed for '{$entity->getId()}': " . $e->getMessage());
         }
+    }
+
+    private function insertSale(
+        CcInventoryDbService $db,
+        int $ccOrderId,
+        int $ccProductId,
+        int $qty,
+        float $price,
+        string $date
+    ): int {
+        $db->execute(
+            "INSERT INTO sales (order_id, product_id, qty, price, date) VALUES (?, ?, ?, ?, ?)",
+            [$ccOrderId, $ccProductId, $qty, $price, $date]
+        );
+        return (int) $db->lastInsertId();
     }
 }

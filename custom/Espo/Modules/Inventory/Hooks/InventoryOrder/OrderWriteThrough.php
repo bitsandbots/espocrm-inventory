@@ -7,6 +7,7 @@ use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Log;
 use Espo\Modules\Inventory\Services\CcInventoryDbService;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 use Throwable;
 
@@ -19,6 +20,7 @@ class OrderWriteThrough implements AfterSave
 
     public function __construct(
         private InjectableFactory $injectableFactory,
+        private EntityManager $entityManager,
         private Log $log
     ) {}
 
@@ -34,11 +36,15 @@ class OrderWriteThrough implements AfterSave
             $ccId       = $entity->get('ccInventoryId');
             $customerId = null;
 
-            $customerLink = $entity->get('customer');
-            if ($customerLink) {
-                $ccCustomerId = $customerLink->get('ccInventoryCustomerId');
-                if ($ccCustomerId) {
-                    $customerId = (int) $ccCustomerId;
+            // Load account directly via FK — avoids lazy-load miss on new entities
+            $espoCustomerId = $entity->get('customerId');
+            if ($espoCustomerId) {
+                $customerAccount = $this->entityManager->getEntityById('Account', $espoCustomerId);
+                if ($customerAccount) {
+                    $ccCustomerId = $customerAccount->get('ccInventoryCustomerId');
+                    if ($ccCustomerId) {
+                        $customerId = (int) $ccCustomerId;
+                    }
                 }
             }
 
@@ -58,13 +64,16 @@ class OrderWriteThrough implements AfterSave
                     array_values($data)
                 );
                 $newCcId = (int) $db->lastInsertId();
-                $entity->set('ccInventoryId', $newCcId);
 
                 $db->execute(
                     "INSERT INTO audit_log (module, action, record_id, summary, created_at)
                      VALUES ('orders', 'create', ?, 'Created via EspoCRM', NOW())",
                     [$newCcId]
                 );
+
+                // Persist the new cc-inventory ID back to EspoCRM
+                $entity->set('ccInventoryId', $newCcId);
+                $this->entityManager->saveEntity($entity, ['skipInventorySync' => true, 'silent' => true]);
             } else {
                 $db->execute(
                     "UPDATE orders SET customer = ?, customer_id = ?, status = ?,

@@ -29,6 +29,26 @@
         "ccInventoryId": {
             "type": "int",
             "readOnly": true
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": ["useNumericFormat"]
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": ["useNumericFormat"]
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "entity": "User"
         }
     },
     "links": {
@@ -41,11 +61,19 @@
             "type": "belongsTo",
             "entity": "InventoryProduct",
             "foreign": "purchaseOrderItems"
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
         }
     },
     "collection": {
-        "sortBy": "createdAt",
-        "asc": false
+        "orderBy": "createdAt",
+        "order": "desc"
     },
     "indexes": {
         "ccInventoryId": {
